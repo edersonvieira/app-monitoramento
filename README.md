@@ -25,3 +25,4 @@ flet run
 ```
 
 <h1>Funcionalidade do Aplicativo</h1>
+![image](https://github.com/user-attachments/assets/d64c5552-ad80-4d2a-8c12-ebee3e48bff0)
