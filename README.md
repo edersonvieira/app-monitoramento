@@ -19,7 +19,9 @@ Após ativar seu ambiente instale as dependencias requeridas.
 ```
 pip install -r requirements.txt
 ```
-Execute
+Execute.
 ```
 flet run
 ```
+
+<h1>Funcionalidade do Aplicativo</h1>
