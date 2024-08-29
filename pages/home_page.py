@@ -9,7 +9,7 @@ def home_page(page: ft.Page):
 
     dropdown = ft.Dropdown(
         label="Selecione seu equipamento",
-        on_change=lambda e: update_table(page, e.control.value)  # Atualiza a tabela quando o dropdown muda
+        on_change=lambda e: update_table(page, e.control.value)
     )
     
     table = ft.DataTable(
@@ -20,45 +20,58 @@ def home_page(page: ft.Page):
             ft.DataColumn(ft.Text("Data e Hora")),
         ],
         rows=[],
-        width=page.window_width - 20
+        width=page.window_width - 20,
     )
     
-    page.add(dropdown)
-    page.add(table)
+    scrollable_table = ft.Container(
+        content=ft.Column([table], scroll=ft.ScrollMode.AUTO),
+        height=400,  # Adjust the height as needed
+        width=page.window_width - 20,
+    )
+    
+    page.controls.append(dropdown)
+    page.controls.append(scrollable_table)
+    page.table = table
 
-    # Populate dropdown with dispositivos
-    dispositivos = page.client_storage.get("dispositivos")
-    if dispositivos is None:
-        dispositivos = []
+    topicos_sub = page.client_storage.get("topicos_sub")
+    if topicos_sub is None:
+        topicos_sub = {}
+    dispositivos = topicos_sub.keys()
     for dispositivo in dispositivos:
         dropdown.options.append(ft.dropdown.Option(dispositivo))
+    
+    page.update()
     dropdown.update()
     logger.info("Página inicial carregada com sucesso.")
 
-def update_table(page: ft.Page, selected_topic: str):
-    logger.info(f"Atualizando tabela para o tópico selecionado: {selected_topic}")
-    messages = page.client_storage.get("mqtt_messages")
-    if messages is None:
-        messages = {}
-    if selected_topic not in messages:
-        logger.warning(f"Tópico selecionado '{selected_topic}' não encontrado nas mensagens.")
+def update_table(page: ft.Page, topic: str):
+    table = page.table
+
+    if not isinstance(table, ft.DataTable):
+        logger.error("The control is not a DataTable.")
         return
 
-    # Limpar as linhas existentes na tabela
-    table = page.controls[1]  # Assuming the table is the second control added to the page
     table.rows.clear()
 
-    # Adicionar novas linhas à tabela com base nas mensagens recuperadas
-    for message in messages[selected_topic]:
-        # Supondo que a mensagem seja uma string no formato "X,Y,Z,Data e Hora"
-        x, y, z, timestamp = message.split(',')
-        table.rows.append(
-            ft.DataRow(cells=[
-                ft.DataCell(ft.Text(x)),
-                ft.DataCell(ft.Text(y)),
-                ft.DataCell(ft.Text(z)),
-                ft.DataCell(ft.Text(timestamp)),
-            ])
-        )
-    table.update()
-    logger.info(f"Tabela atualizada para o tópico: {selected_topic}")
+    pacotes = page.client_storage.get("pacotes")
+    if not pacotes:
+        logger.warning("No packets found in local storage.")
+        return
+
+    for pacote in pacotes:
+        if topic in pacote:
+            equipamento_pacotes = pacote[topic]
+            break
+    else:
+        logger.warning(f"No packets found for topic '{topic}'.")
+        return
+
+    for pacote in equipamento_pacotes:
+        table.rows.append(ft.DataRow(cells=[
+            ft.DataCell(ft.Text(str(pacote["x"]))),
+            ft.DataCell(ft.Text(str(pacote["y"]))),
+            ft.DataCell(ft.Text(str(pacote["z"]))),
+            ft.DataCell(ft.Text(str(pacote["timestamp"])))
+        ]))
+
+    page.update()

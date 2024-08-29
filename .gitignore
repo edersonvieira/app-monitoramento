@@ -35,7 +35,8 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-
+android-ndk-r27-linux.zip?hl=pt-br
+new_venv/
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -121,7 +122,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/

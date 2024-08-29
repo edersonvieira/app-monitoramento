@@ -5,31 +5,30 @@ def add_page(page: ft.Page):
     page.title = "Adicionar"
     
     equipamento_id = ft.TextField(label="Identificação do Equipamento")
-    pub = ft.TextField(label="Tópico de Publicação")
+    sub = ft.TextField(label="Tópico de Subscrição")
     
     def add_topico(e):
         equipamento = equipamento_id.value
-        topico_pub = pub.value
+        topico_sub = sub.value
         
-        dispositivos = page.client_storage.get("dispositivos")
-        if dispositivos is None:
-            dispositivos = []
-        if equipamento not in dispositivos:
-            dispositivos.append(equipamento)
-        page.client_storage.set("dispositivos", dispositivos)
+        topicos_sub = page.client_storage.get("topicos_sub")
+        if topicos_sub is None:
+            topicos_sub = {}
         
-        page.client_storage.set(f"{equipamento}_topico", topico_pub)
+        topicos_sub[equipamento] = topico_sub
+        
+        page.client_storage.set("topicos_sub", topicos_sub)
         
         equipamento_id.value = ""
-        pub.value = ""
+        sub.value = ""
         
         page.controls.clear()
-        page.add(ft.Text(f"Tópico adicionado:\Publicação: {topico_pub} para o equipamento {equipamento}"))
+        page.add(ft.Text(f"Tópico adicionado:\nPublicação: {topico_sub} para o equipamento {equipamento}"))
         home_page(page)
         page.update()
 
     adicionar_button = ft.ElevatedButton(text="Adicionar", on_click=add_topico, width=page.window_width - 20, height=50)
     
     page.add(equipamento_id)
-    page.add(pub)
+    page.add(sub)
     page.add(adicionar_button)

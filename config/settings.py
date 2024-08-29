@@ -1,8 +1,10 @@
-import logging
-import flet as ft
+import json
 import time
-from datetime import datetime
+import flet as ft
 import paho.mqtt.client as mqtt
+import logging
+
+from pages.home_page import update_table
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,39 +29,75 @@ def connect_mqtt(page: ft.Page):
         if rc == 0:
             logger.info("Conectado ao broker MQTT com sucesso.")
             page.add(ft.Text("Conectado ao broker MQTT com sucesso."))
+            
+            topicos_sub = page.client_storage.get("topicos_sub")
+            if topicos_sub:
+                for equipamento, topico in topicos_sub.items():
+                    client.subscribe(topico)
+                    logger.info(f"Inscrito no tópico: {topico} para o equipamento: {equipamento}")
         else:
             logger.error(f"Falha na conexão com o broker MQTT. Código de retorno: {rc}")
             page.add(ft.Text(f"Falha na conexão com o broker MQTT. Código de retorno: {rc}"))
         page.update()
     
     def on_message(client, userdata, msg):
-        payload = msg.payload.decode()
-        logger.info(f"Mensagem recebida do tópico '{msg.topic}': {payload}")
-        page.add(ft.Text(f"Mensagem recebida do tópico '{msg.topic}': {payload}"))
-        save_message_to_storage(page, msg.topic, payload)
-        update_dropdown(page)
-        page.update()
+        topic = msg.topic
+        message = msg.payload.decode()
+        logger.info(f"Mensagem recebida no tópico '{topic}': {message}")
+        save_message_to_storage(page, topic, message)
+        update_table(page, topic)
 
     def save_message_to_storage(page: ft.Page, topic: str, message: str):
         logger.info(f"Salvando mensagem no tópico '{topic}': {message}")
-        messages = page.client_storage.get("mqtt_messages")
-        if messages is None:
-            messages = {}
-        if topic not in messages:
-            messages[topic] = []
-        messages[topic].append(message)
-        page.client_storage.set("mqtt_messages", messages)
-
-    def update_dropdown(page: ft.Page):
-        logger.info("Atualizando dropdown com novos tópicos.")
-        dropdown = page.controls[0]
-        messages = page.client_storage.get("mqtt_messages")
-        if messages is None:
-            messages = {}
-        dropdown.options.clear()
-        for topic in messages.keys():
-            dropdown.options.append(ft.DropdownOption(topic))
-        dropdown.update()
+        
+        topicos_sub = page.client_storage.get("topicos_sub")
+        if not topicos_sub:
+            logger.warning("Nenhum tópico de subscrição encontrado no local storage.")
+            return
+        
+        equipamento = None
+        for eq, topico in topicos_sub.items():
+            if topico == topic:
+                equipamento = eq
+                break
+        
+        if not equipamento:
+            logger.warning(f"Nenhum equipamento encontrado para o tópico '{topic}'.")
+            return
+        
+        pacotes = page.client_storage.get("pacotes")
+        if pacotes is None:
+            pacotes = []
+        
+        equipamento_pacotes = None
+        for pacote in pacotes:
+            if equipamento in pacote:
+                equipamento_pacotes = pacote[equipamento]
+                break
+        
+        if equipamento_pacotes is None:
+            equipamento_pacotes = []
+            pacotes.append({equipamento: equipamento_pacotes})
+        
+        try:
+            data = json.loads(message)
+            x = data["x"]
+            y = data["y"]
+            z = data["z"]
+            timestamp = data["timestamp"]
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.error(f"Erro ao decodificar a mensagem JSON: {e}")
+            return
+        
+        equipamento_pacotes.append({
+            "x": float(x),
+            "y": float(y),
+            "z": float(z),
+            "timestamp": int(timestamp)
+        })
+        
+        page.client_storage.set("pacotes", pacotes)
+        logger.info(f"Pacote salvo para o equipamento '{equipamento}': {equipamento_pacotes[-1]}")
 
     client.on_connect = on_connect
     client.on_message = on_message
@@ -78,4 +116,4 @@ def connect_mqtt(page: ft.Page):
 def background_task(client):
     while True:
         logger.info("Background task is running...")
-        time.sleep(1)
+        time.sleep(1)  
