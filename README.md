@@ -1,9 +1,5 @@
-# A app-monitoramento Flet app
-
-An example of a minimal Flet app.
-
-To run the app:
+Aplicativo de Monitoramento de Vibração
 
 ```
-flet run [app_directory]
+flet run
 ```
