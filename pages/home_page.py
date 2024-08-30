@@ -1,5 +1,6 @@
 import logging
 import flet as ft
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +68,12 @@ def update_table(page: ft.Page, topic: str):
         return
 
     for pacote in equipamento_pacotes:
+        timestamp = datetime.fromtimestamp(pacote["timestamp"]).strftime("%d/%m/%Y %H:%M:%S")
         table.rows.append(ft.DataRow(cells=[
             ft.DataCell(ft.Text(str(pacote["x"]))),
             ft.DataCell(ft.Text(str(pacote["y"]))),
             ft.DataCell(ft.Text(str(pacote["z"]))),
-            ft.DataCell(ft.Text(str(pacote["timestamp"])))
+            ft.DataCell(ft.Text(timestamp))
         ]))
 
     page.update()
