@@ -10,6 +10,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main(page: ft.Page):
+    page.window_width = 375
+    page.window_height = 667 
     logger.info("Iniciando a aplicação...")
     page.title = "APP Monitoramento"
     client = connect_mqtt(page)
@@ -37,7 +39,6 @@ def main(page: ft.Page):
     page.add(page.navigation_bar)
     home_page(page)
 
-    # Start the background task in a separate thread
     threading.Thread(target=background_task, args=(client,), daemon=True).start()
     logger.info("Aplicação iniciada com sucesso.")
 
