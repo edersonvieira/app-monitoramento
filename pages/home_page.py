@@ -26,12 +26,26 @@ def home_page(page: ft.Page):
     
     scrollable_table = ft.Container(
         content=ft.Column([table], scroll=ft.ScrollMode.AUTO),
-        height=400,  # Adjust the height as needed
+        height=400,
         width=page.window_width - 20,
     )
     
-    page.controls.append(dropdown)
-    page.controls.append(scrollable_table)
+    content = ft.Column(
+        [
+            dropdown,
+            scrollable_table
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+    
+    container = ft.Container(
+        content=content,
+        alignment=ft.alignment.center,
+        expand=True
+    )
+    
+    page.controls.append(container)
     page.table = table
 
     topicos_sub = page.client_storage.get("topicos_sub")

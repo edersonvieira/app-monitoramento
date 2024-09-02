@@ -1,5 +1,4 @@
 import flet as ft
-
 from pages.home_page import home_page
 
 def config_page(page: ft.Page):
@@ -28,7 +27,7 @@ def config_page(page: ft.Page):
         
         alert = ft.CupertinoAlertDialog(
             title=ft.Text("Configuração Salva"),
-            content=ft.Text(f"Comunicação MQTT salva:\Broker: {broker_config}:{port_config}\nUsuário: {usuario_config}\nSenha: {senha_config}"),
+            content=ft.Text(f"Comunicação MQTT salva:\nBroker: {broker_config}:{port_config}\nUsuário: {usuario_config}\nSenha: {senha_config}"),
             actions=[
                 ft.CupertinoDialogAction("OK", on_click=lambda e: close_dialog(alert))
             ],
@@ -41,7 +40,7 @@ def config_page(page: ft.Page):
         dialog.open = False
         page.update()
     
-    save_button = ft.ElevatedButton(text="Salvar", on_click=save_mqtt_config, width=page.window_width - 20, height=50)
+    save_button = ft.CupertinoFilledButton(text="Salvar", on_click=save_mqtt_config, width=page.window_width - 20, height=50)
     
     def clear_storage(e):
         confirm_clear = ft.CupertinoAlertDialog(
@@ -65,11 +64,25 @@ def config_page(page: ft.Page):
         home_page(page)
 
     
-    clear_button = ft.ElevatedButton(text="Limpar LocalStorage", on_click=clear_storage, width=page.window_width - 20, height=50)
+    clear_button = ft.CupertinoFilledButton(text="Limpar LocalStorage", on_click=clear_storage, width=page.window_width - 20, height=50)
     
-    page.add(broker_input)
-    page.add(port_input)
-    page.add(usuario_input)
-    page.add(senha_input)
-    page.add(save_button)
-    page.add(clear_button)
+    content = ft.Column(
+        [
+            broker_input,
+            port_input,
+            usuario_input,
+            senha_input,
+            save_button,
+            clear_button
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+    
+    container = ft.Container(
+        content=content,
+        alignment=ft.alignment.center,
+        expand=True
+    )
+    
+    page.add(container)

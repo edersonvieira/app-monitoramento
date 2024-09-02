@@ -27,8 +27,22 @@ def add_page(page: ft.Page):
         home_page(page)
         page.update()
 
-    adicionar_button = ft.ElevatedButton(text="Adicionar", on_click=add_topico, width=page.window_width - 20, height=50)
+    adicionar_button = ft.CupertinoFilledButton(text="Adicionar", on_click=add_topico, width=page.window_width - 20, height=50)
     
-    page.add(equipamento_id)
-    page.add(sub)
-    page.add(adicionar_button)
+    content = ft.Column(
+        [
+            equipamento_id,
+            sub,
+            adicionar_button
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+    
+    container = ft.Container(
+        content=content,
+        alignment=ft.alignment.center,
+        expand=True
+    )
+    
+    page.add(container)
