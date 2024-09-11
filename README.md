@@ -1,5 +1,5 @@
 <h1>Aplicativo de Monitoramento de Vibração</h1>
-<a href='https://drive.google.com/file/d/1CvkLxWJfazfs5merxKb_dxoQEUrOrzzj/view?usp=drive_link'>Baixe o .EXE aqui.</a>
+<a href='https://drive.google.com/file/d/1CvkLxWJfazfs5merxKb_dxoQEUrOrzzj/view?usp=drive_link' _blank>Baixe o .EXE aqui.</a>
 <br>
 Para rodar este app em seu ambiente siga os passos abaixo.
 
